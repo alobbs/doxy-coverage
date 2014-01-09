@@ -52,6 +52,11 @@ def parse_file(fullpath):
 	definitions = {}
 
 	for definition in tree.findall("./compounddef//memberdef"):
+		# Should it be documented
+		if (definition.get('kind') == 'function' and
+			definition.get('static') == 'yes'):
+			continue
+
 		# Is the definition documented?
 		documented = False
 		for k in ('briefdescription', 'detaileddescription', 'inbodydescription'):
