@@ -137,7 +137,7 @@ def report (files):
 		total_yes += doc_yes
 		total_no  += doc_no
 
-		print '%3d%% - %s'%(doc_per, f)
+		print '%3d%% - %s - (%d of %d)'%(doc_per, f, doc_yes, (doc_yes + doc_no))
 
 		defs_sorted = defs.keys()
 		defs_sorted.sort()
