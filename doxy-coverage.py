@@ -39,7 +39,11 @@ import sys
 import argparse
 import xml.etree.ElementTree as ET
 
+# Defaults
 ACCEPTABLE_COVERAGE = 80
+
+# Global
+ns = None
 
 def parse_file(fullpath):
 	tree = ET.parse(fullpath)
@@ -140,14 +144,17 @@ def report (files):
 	total_per = total_yes * 100 / total_all
 	print
 	print "%d%% API documentation coverage" %(total_per)
-	return (ACCEPTABLE_COVERAGE - total_per, 0)[total_per > ACCEPTABLE_COVERAGE]
+	return (ns.threshold - total_per, 0)[total_per > ns.threshold]
 
 
 def main():
 	# Arguments
 	parser = argparse.ArgumentParser()
-	parser.add_argument ("dir", action="store", help="Path to Doxygen's XML doc directory")
+	parser.add_argument ("dir",         action="store",      help="Path to Doxygen's XML doc directory")
+	parser.add_argument ("--noerror",   action="store_true", help="Do not return error code after execution")
+	parser.add_argument ("--threshold", action="store",      help="Min acceptable coverage percentage (Default: %s)"%(ACCEPTABLE_COVERAGE), default=ACCEPTABLE_COVERAGE, type=int)
 
+	global ns
 	ns = parser.parse_args()
 	if not ns:
 		print ("ERROR: Couldn't parse parameters")
@@ -158,6 +165,8 @@ def main():
 
 	# Print report
 	err = report (files)
+	if ns.noerror:
+		return
 	sys.exit(err)
 
 
