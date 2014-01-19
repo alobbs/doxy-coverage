@@ -30,6 +30,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import print_function
+
 __author__    = "Alvaro Lopez Ortega"
 __email__     = "alvaro@alobbs.com"
 __copyright__ = "Copyright (C) 2014 Alvaro Lopez Ortega"
@@ -44,6 +46,13 @@ ACCEPTABLE_COVERAGE = 80
 
 # Global
 ns = None
+
+def ERROR(*objs):
+    print("ERROR: ", *objs, end='\n', file=sys.stderr)
+
+def FATAL(*objs):
+	ERROR (*objs)
+	sys.exit(1)
 
 def parse_file(fullpath):
 	tree = ET.parse(fullpath)
@@ -91,6 +100,9 @@ def parse_file(fullpath):
 
 def parse(path):
 	index_fp = os.path.join (path, "index.xml")
+	if not os.path.exists (index_fp):
+		FATAL ("Documentation not present. Exiting.", index_fp)
+
 	tree = ET.parse(index_fp)
 
 	files = {}
@@ -137,18 +149,18 @@ def report (files):
 		total_yes += doc_yes
 		total_no  += doc_no
 
-		print '%3d%% - %s - (%d of %d)'%(doc_per, f, doc_yes, (doc_yes + doc_no))
+		print ('%3d%% - %s - (%d of %d)'%(doc_per, f, doc_yes, (doc_yes + doc_no)))
 
 		defs_sorted = defs.keys()
 		defs_sorted.sort()
 		for d in defs_sorted:
 			if not defs[d]:
-				print "\t", d
+				print ("\t", d)
 
 	total_all = total_yes + total_no
 	total_per = total_yes * 100 / total_all
-	print
-	print "%d%% API documentation coverage" %(total_per)
+	print()
+	print("%d%% API documentation coverage" %(total_per))
 	return (ns.threshold - total_per, 0)[total_per > ns.threshold]
 
 
@@ -162,8 +174,7 @@ def main():
 	global ns
 	ns = parser.parse_args()
 	if not ns:
-		print ("ERROR: Couldn't parse parameters")
-		raise SystemExit
+		FATAL ("ERROR: Couldn't parse parameters")
 
 	# Parse
 	files = parse (ns.dir)
@@ -172,6 +183,7 @@ def main():
 	err = report (files)
 	if ns.noerror:
 		return
+
 	sys.exit(err)
 
 
