@@ -52,7 +52,7 @@ def ERROR(*objs):
 
 def FATAL(*objs):
 	ERROR (*objs)
-	sys.exit(1)
+	sys.exit((1,0)[ns.noerror])
 
 def parse_file(fullpath):
 	tree = ET.parse(fullpath)
