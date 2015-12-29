@@ -117,7 +117,7 @@ def parse(path):
 	return files
 
 
-def report (files):
+def report (files, exclude_dirs):
 	def get_coverage (f):
 		defs = files[f]
 		if not defs:
@@ -138,6 +138,14 @@ def report (files):
 	total_no  = 0
 
 	for f in files_sorted:
+		skip = False
+		for exclude_dir in exclude_dirs:
+			if exclude_dir in f:
+				skip = True
+				break
+		if skip:
+			continue
+
 		defs = files[f]
 		if not defs:
 			continue
@@ -170,6 +178,8 @@ def main():
 	parser.add_argument ("dir",         action="store",      help="Path to Doxygen's XML doc directory")
 	parser.add_argument ("--noerror",   action="store_true", help="Do not return error code after execution")
 	parser.add_argument ("--threshold", action="store",      help="Min acceptable coverage percentage (Default: %s)"%(ACCEPTABLE_COVERAGE), default=ACCEPTABLE_COVERAGE, type=int)
+	parser.add_argument("--excludedirs", nargs='+', help="List of directories to be excluded from coverage analysis", type=str, default=[])
+
 
 	global ns
 	ns = parser.parse_args()
@@ -180,7 +190,7 @@ def main():
 	files = parse (ns.dir)
 
 	# Print report
-	err = report (files)
+	err = report (files, ns.excludedirs)
 	if ns.noerror:
 		return
 
